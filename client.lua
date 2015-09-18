@@ -132,7 +132,7 @@ function sendCmd(cmd, par)
         .."Connection: keep-alive\r\nAccept: */*\r\n\r\n")
 end
 
--- Parse SJ4000 responses with XML-data whether command has succeeded
+-- Parse SJ4000 responds with XML-data whether command has succeeded
 function parseXML(response, cmd)
 	-- print(response)
 	
