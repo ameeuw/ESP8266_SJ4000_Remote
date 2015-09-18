@@ -1,3 +1,4 @@
+-- Start configuration server.
 function startConfig()
      print('Config -> start webserver')
      print(node.heap())
@@ -9,6 +10,7 @@ function startConfig()
      node.restart()
 end
 
+-- Blink an LED for status feedback.
 function blink(pin, times, delay)	
 	local lighton=0
 	local count=0
@@ -29,6 +31,7 @@ function blink(pin, times, delay)
 		end)
 end
 
+-- Check if button was pressed long
 function checkLongPress()
     gpio.mode(pin_btn,gpio.OUTPUT)
 	gpio.write(pin_btn,gpio.HIGH)
@@ -56,9 +59,10 @@ function checkLongPress()
 	gpio.trig(pin_btn,"down",checkLongPress)
 end
 
+-- A short press sends the trigger command (shutter for photo- and start/stop for video-mode)
 function shortPress()
-	if mode==0 then				-- If in picture mode
-		sendCmd(1001,0)			-- Take a picture
+	if mode==0 then				-- If in photo mode
+		sendCmd(1001,0)			-- Take a photo
 	else
 		if recording==0 then	-- If currently not recording
 			sendCmd(2001,1)		-- Start recording
@@ -68,6 +72,7 @@ function shortPress()
 	end
 end
 
+-- A long press sends command to change the mode (photo- or video-mode)
 function longPress()
 	if mode==0 then
 		sendCmd(3001,1)
@@ -76,6 +81,14 @@ function longPress()
 	end
 end
 
+-- SJ4000 exposes a RESTful API to the WiFi-device
+-- List of commands:
+-- Command  Parameter   Function
+-- 1001     -           Take photo
+-- 2001     0           Stop recording video
+-- 2001     1           Start recording video
+-- 3001     0           Switch to photo mode
+-- 3001     1           Switch to video mode
 function sendCmd(cmd, par)
 	if cmd~=nil and par~=nil then
 		get = "/?custom=1&cmd=" .. cmd .. "&par=" .. par
@@ -119,6 +132,7 @@ function sendCmd(cmd, par)
         .."Connection: keep-alive\r\nAccept: */*\r\n\r\n")
 end
 
+-- Parse SJ4000 responses with XML-data whether command has succeeded
 function parseXML(response, cmd)
 	-- print(response)
 	
@@ -127,6 +141,7 @@ function parseXML(response, cmd)
 		Status = response:match("<Status>([^,]+)</Status>")
 	end
 	
+	-- If Status for corresponding command is 0, command was successful
 	if Cmd~=nil and Status~=nil then
 		if tonumber(cmd)==tonumber(Cmd) and tonumber(Status)==tonumber(0) then
 			return 0
@@ -136,6 +151,7 @@ function parseXML(response, cmd)
 	end
 end
 
+-- Load settings, connect to wifi station and register pin-interrupt
 if file.open('settings.lua', 'r') then 
     dofile('settings.lua')
 	 
