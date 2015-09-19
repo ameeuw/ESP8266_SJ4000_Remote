@@ -53,17 +53,17 @@ function createServer()
 	conn:on("sent",function(conn) conn:close() end)end)
 end
 
-function blink(pin, times, delay)	
+function blink(pin, times, delay, r, g, b)	
 	local lighton=0
 	local count=0
 	tmr.alarm(0,delay,1,
 		function()
 			if lighton==0 then 
 				lighton=1
-				pwm.setduty(pin, 15)
+				ws2812.writergb(pin, string.char(r,g,b))
 			else 
 				lighton=0
-				pwm.setduty(pin, 0)
+				ws2812.writergb(pin, string.char(0,0,0))
 			end
 			if count==(times*2-1) then 
 				tmr.stop(0) 
@@ -80,6 +80,5 @@ else
 end
 
 pin_led=3
-pwm.setup(pin_led,300,0)
-blink(pin_led,-1,500)
+blink(pin_led,-1,500,0,0,255)
 updateAP()

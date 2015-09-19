@@ -11,17 +11,17 @@ function startConfig()
 end
 
 -- Blink an LED for status feedback.
-function blink(pin, times, delay)	
+function blink(pin, times, delay, r, g, b)	
 	local lighton=0
 	local count=0
 	tmr.alarm(0,delay,1,
 		function()
 			if lighton==0 then 
 				lighton=1 
-				pwm.setduty(pin, 1023)
+				ws2812.writergb(pin, string.char(r,g,b))
 			else 
 				lighton=0
-				pwm.setduty(pin, 0)
+				ws2812.writergb(pin, string.char(0,0,0))
 			end
 			if count==(times*2-1) then 
 				tmr.stop(0) 
@@ -45,10 +45,7 @@ function checkLongPress()
 			if gpio.read(pin_led)~=gpio.HIGH then
 				print("Reset. Starting configuration!")
 				startConfig()
-			end
-			pwm.setup(pin_led,300,0)
-			pwm.start(pin_led)
-			
+			end			
 		else
 		-- short press received			
 			shortPress()
@@ -102,13 +99,15 @@ function sendCmd(cmd, par)
 		if parseXML(payload, cmd)==0 then
 			
 			if cmd==1001 then
-				blink(pin_led,3,100)
+				-- Fast blink LED green to mark photo
+				blink(pin_led,3,100,0,255,0)
 			end
 			
 			if cmd==2001 then
 				if par==1 then
 					recording = 1
-					blink(pin_led,-1,800)
+					-- Slow blink LED red while recording
+					blink(pin_led,-1,800,255,0,0)
 				else
 					recording = 0
 					tmr.stop(0)
@@ -117,11 +116,15 @@ function sendCmd(cmd, par)
 			
 			if cmd==3001 then
 				if par==1 then
+					-- Switch to video mode successful
 					mode = 1
-					blink(pin_led,3,200)
+					-- Fast blink LED blue for switching to video mode
+					blink(pin_led,3,200,0,0,255)
 				else
+					-- Switch to photo mode successful
 					mode = 0
-					blink(pin_led,2,200)
+					-- Fast blink LED purple for switching to photo mode
+					blink(pin_led,2,200,170,0,255)
 				end
 			end
 		end
@@ -166,10 +169,8 @@ if file.open('settings.lua', 'r') then
 	recording = 0
 	
     gpio.mode(pin_btn,gpio.INT,gpio.PULLUP)
-    gpio.trig(pin_btn,"low",checkLongPress)
-    pwm.setup(pin_led,300,0)
-    pwm.start(pin_led)
-	
+    gpio.trig(pin_btn,"low",checkLongPress)	
+    gpio.trig(pin_btn,"low",checkLongPress)	
 else
     startConfig()
 end
