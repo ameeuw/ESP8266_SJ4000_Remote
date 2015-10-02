@@ -19,8 +19,8 @@ function applySettings(network, password, host)
 	file.writeline('password="'..password..'"')
 	file.writeline('host="'..host..'"')
 	file.close()
-	file.remove("init.lua")
-	file.open("init.lua", "a+")
+	file.remove("startup.lua")
+	file.open("startup.lua", "a+")
 	file.writeline('dofile("client.lc")')
 	file.close()
 end
@@ -79,6 +79,6 @@ else
 	host = "192.168.1.254"
 end
 
-pin_led=3
-blink(pin_led,-1,500,0,0,255)
+pin_led=4
+blink(pin_led,-1,500,0,0,100)
 updateAP()

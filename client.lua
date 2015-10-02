@@ -2,8 +2,8 @@
 function startConfig()
      print('Config -> start webserver')
      print(node.heap())
-     file.remove("init.lua")
-     file.open("init.lua", "a+")
+     file.remove("startup.lua")
+     file.open("startup.lua", "a+")
      file.writeline('dofile("config.lc")')
      file.close()
      tmr.delay(100000)
@@ -100,14 +100,14 @@ function sendCmd(cmd, par)
 			
 			if cmd==1001 then
 				-- Fast blink LED green to mark photo
-				blink(pin_led,3,100,0,255,0)
+				blink(pin_led,3,100,0,100,0)
 			end
 			
 			if cmd==2001 then
 				if par==1 then
 					recording = 1
 					-- Slow blink LED red while recording
-					blink(pin_led,-1,800,255,0,0)
+					blink(pin_led,-1,800,100,0,0)
 				else
 					recording = 0
 					tmr.stop(0)
@@ -119,12 +119,12 @@ function sendCmd(cmd, par)
 					-- Switch to video mode successful
 					mode = 1
 					-- Fast blink LED blue for switching to video mode
-					blink(pin_led,3,200,0,0,255)
+					blink(pin_led,3,200,0,0,100)
 				else
 					-- Switch to photo mode successful
 					mode = 0
 					-- Fast blink LED purple for switching to photo mode
-					blink(pin_led,2,200,170,0,255)
+					blink(pin_led,2,200,60,0,100)
 				end
 			end
 		end
@@ -163,14 +163,15 @@ if file.open('settings.lua', 'r') then
 	wifi.sta.autoconnect(1)
 	tmr.delay(100000)
 	 
-    pin_led = 3
-	pin_btn = 4
+  pin_led = 4
+	pin_btn = 3
 	mode = 0
 	recording = 0
 	
-    gpio.mode(pin_btn,gpio.INT,gpio.PULLUP)
-    gpio.trig(pin_btn,"low",checkLongPress)	
-    gpio.trig(pin_btn,"low",checkLongPress)	
+  gpio.mode(pin_btn,gpio.INT,gpio.PULLUP)
+  gpio.trig(pin_btn,"low",checkLongPress)
+  blink(pin_led,3,200,100,100,100)
+    -- gpio.trig(pin_btn,"low",checkLongPress)	
 else
     startConfig()
 end
